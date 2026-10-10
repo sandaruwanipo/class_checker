@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIPO Sri Lanka - Trademark Goods Compatibility Checker (Non-Official)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nipo: {
+                            navy: '#002B49',
+                            deep: '#001A2E',
+                            blue: '#0A426C',
+                            gold: '#D4AF37',
+                            goldlight: '#F5E6AB',
+                            accent: '#1E40AF'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- ========================================== -->
+    <!-- 1. LOGIN MODAL OVERLAY                     -->
+    <!-- ========================================== -->
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md px-4">
+        <div class="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 rounded-full bg-nipo-navy border border-nipo-gold/40 text-nipo-gold mb-1 shadow-inner">
+                    <i data-lucide="shield-lock" class="w-7 h-7"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-wide">NIPO Sri Lanka</h1>
+                <p class="text-xs font-semibold text-nipo-gold">Trademark Examination Tool (Non-Official)</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Examiner Passcode</label>
+                    <div class="relative">
+                        <input type="password" id="passcodeInput" required placeholder="Enter passcode..."
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-nipo-gold">
+                        <button type="button" onclick="toggleLoginPasscode()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <i data-lucide="eye" id="loginEyeIcon" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loginError" class="hidden text-xs text-rose-500 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded p-2 text-center font-medium">
+                    Invalid Passcode. Please try again.
+                </div>
+
+                <button type="submit" class="w-full bg-nipo-gold hover:bg-yellow-500 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition shadow-md flex items-center justify-center gap-2">
+                    <i data-lucide="key-round" class="w-4 h-4"></i> Secure Login
+                </button>
+            </form>
+
+            <div class="text-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                <p class="text-[11px] text-slate-400">Default Passcode: <span class="font-mono text-slate-600 dark:text-slate-300 font-bold">NIPO2026</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. MAIN APP CONTENT CONTAINER              -->
+    <!-- ========================================== -->
+    <div id="mainAppContainer" class="hidden flex-col min-h-screen">
+
+        <!-- Top Government Banner -->
+        <div class="bg-nipo-deep text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="font-medium">National Intellectual Property Office (NIPO) — Sri Lanka</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="hidden sm:inline text-slate-400">Nice Classification 13th Edition (Version 2026)</span>
+                    <span class="bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">Non-Official</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Header -->
+        <header class="bg-nipo-navy text-white shadow-md border-b-2 border-nipo-gold sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-nipo-gold/20 border border-nipo-gold flex items-center justify-center text-nipo-gold font-bold text-lg shadow-inner">
+                        🏛️
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
+                            NIPO Trademarks Search Portal
+                            <span class="bg-nipo-gold/20 text-nipo-goldlight text-xs font-semibold px-2 py-0.5 rounded border border-nipo-gold/30">Examiner AI Tool</span>
+                        </h1>
+                        <p class="text-xs text-slate-300">Goods & Services Class Compatibility Verification System</p>
+                    </div>
+                </div>
+
+                <!-- API Key Bar & Controls -->
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                    <div class="flex items-center space-x-2 bg-nipo-deep p-1.5 rounded-lg border border-slate-700">
+                        <i data-lucide="key" class="w-4 h-4 text-nipo-gold ml-2"></i>
+                        <input type="password" id="apiKeyInput" placeholder="Paste Gemini API Key..." 
+                            class="bg-transparent text-xs text-white placeholder-slate-400 px-2 py-1 focus:outline-none w-44 sm:w-48">
+                        <button id="toggleApiKeyVisibility" onclick="toggleKeyVisibility()" class="text-slate-400 hover:text-white px-1">
+                            <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="saveApiKey()" class="bg-nipo-gold text-nipo-deep hover:bg-yellow-400 font-semibold text-xs px-3 py-1 rounded transition shadow">
+                            Save Key
+                        </button>
+                    </div>
+
+                    <div id="keyStatusBadge" class="text-[11px] font-medium px-2.5 py-1 rounded-md border bg-slate-800 text-slate-300 border-slate-700 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> No Key
+                    </div>
+
+                    <!-- Dark Mode Toggle Button -->
+                    <button onclick="toggleDarkMode()" title="Toggle Dark/Light Mode" class="p-2 rounded-lg bg-nipo-deep border border-slate-700 text-nipo-gold hover:bg-slate-800 transition">
+                        <i data-lucide="moon" id="darkModeIcon" class="w-4 h-4"></i>
+                    </button>
+
+                    <!-- Logout Button -->
+                    <button onclick="handleLogout()" title="Lock Session" class="p-2 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 hover:bg-rose-900 transition flex items-center gap-1 text-xs font-semibold px-2.5">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span class="hidden md:inline">Lock</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Controls Panel (5 cols) -->
+            <section class="lg:col-span-5 space-y-5">
+
+                <!-- Nice Class Selector Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 transition-colors">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+                            <i data-lucide="layers" class="w-4 h-4 text-nipo-blue dark:text-nipo-gold"></i>
+                            1. Select Nice Classification Class
+                        </label>
+                        <span id="classCategoryBadge" class="text-xs font-semibold px-2.5 py-0.5 bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 rounded-full border border-blue-200 dark:border-slate-700">
+                            Goods Class
+                        </span>
+                    </div>
+
+                    <select id="niceClassSelect" onchange="updateClassDetails()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-nipo-blue focus:border-nipo-blue transition shadow-sm font-medium">
+                    </select>
+
+                    <div id="classDescriptionBox" class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/60 border-l-4 border-nipo-blue dark:border-nipo-gold rounded-r-lg text-xs space-y-1">
+                        <div class="font-bold text-slate-800 dark:text-slate-200 text-sm" id="classTitleDisplay">Loading Class...</div>
+                        <div id="classScopeDisplay" class="leading-relaxed text-slate-600 dark:text-slate-400">...</div>
+                    </div>
+                </div>
+
+                <!-- Goods Input Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-nipo-blue dark:text-nipo-gold"></i>
+                            2. Goods / Services Specification List
+                        </label>
+                        <span id="charCount" class="text-xs text-slate-400">0 chars</span>
+                    </div>
+
+                    <div class="mb-3 flex flex-wrap gap-1.5 items-center">
+                        <span class="text-xs text-slate-500 font-medium mr-1">Quick Presets:</span>
+                        <button onclick="loadSampleClass10()" class="text-xs bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 px-2.5 py-1 rounded transition font-semibold flex items-center gap-1">
+                            🧪 Load Class 10 Test List
+                        </button>
+                        <button onclick="resetForm()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 px-2 py-1 rounded transition">
+                            Clear
+                        </button>
+                    </div>
+
+                    <textarea id="goodsInput" rows="8" oninput="updateCharCount()" placeholder="Paste the exact list of goods or services from Form TM-01 here..."
+                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-lg p-3 focus:ring-2 focus:ring-nipo-blue focus:border-nipo-blue transition resize-y font-mono"></textarea>
+
+                    <button id="analyzeBtn" onclick="analyzeGoodsList()" class="mt-4 w-full bg-nipo-navy hover:bg-nipo-deep text-white font-bold py-3 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-md border border-nipo-gold/30">
+                        <i data-lucide="sparkles" class="w-4.5 h-4.5 text-nipo-gold"></i>
+                        Run Color-Coded Examination Check
+                    </button>
+                </div>
+
+                <!-- Legal Statute Notice -->
+                <div class="bg-blue-50/70 dark:bg-slate-900/80 rounded-xl p-4 border border-blue-100 dark:border-slate-800 text-xs text-blue-950 dark:text-slate-300 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5 text-blue-950 dark:text-nipo-gold">
+                        <i data-lucide="scale" class="w-4 h-4 text-blue-700 dark:text-nipo-gold"></i>
+                        Statutory Legal Basis (Sri Lanka):
+                    </div>
+                    <p>• <strong>Section 36 & Section 38</strong> of the Intellectual Property Act No. 36 of 2003.</p>
+                    <p>• Goods must be designated precisely under Nice Classification 13th Edition (Version 2026).</p>
+                </div>
+
+            </section>
+
+            <!-- Right Column: Visual Dashboard Results (7 cols) -->
+            <section class="lg:col-span-7 flex flex-col space-y-5">
+
+                <!-- Initial Placeholder -->
+                <div id="placeholderState" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-12 text-center flex-grow flex flex-col items-center justify-center space-y-3 transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-1">
+                        <i data-lucide="shield-check" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200 text-lg">Awaiting Specification Input</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm">Select a Nice class, paste the specification, ensure your Gemini API key is entered, and click the examination check button.</p>
+                </div>
+
+                <!-- Loader State -->
+                <div id="loadingState" class="hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-12 text-center flex-grow flex flex-col items-center justify-center space-y-4">
+                    <div class="w-12 h-12 border-4 border-nipo-blue/20 border-t-nipo-navy rounded-full animate-spin"></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-200 text-base">Evaluating Classification Compatibility...</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Comparing goods against NCL 13-2026 guidelines via Gemini API...</p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Output Container -->
+                <div id="reportContainer" class="hidden space-y-5">
+
+                    <!-- Top Verdict Banner -->
+                    <div id="verdictBanner" class="p-4 sm:p-5 rounded-xl border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <div class="text-[11px] uppercase tracking-wider font-bold opacity-80">Examination Verdict</div>
+                            <h2 id="verdictTitle" class="text-lg font-bold mt-0.5">Compatible</h2>
+                            <p id="verdictSummary" class="text-xs mt-1">Summary statement...</p>
+                        </div>
+                        <div id="verdictBadge" class="px-3.5 py-1.5 rounded-full font-bold text-xs uppercase tracking-wide border shadow-sm">
+                            STATUS
+                        </div>
+                    </div>
+
+                    <!-- Color-Coded Dashboard Grid -->
+                    <div class="space-y-4">
+
+                        <!-- 🟢 Compatible Goods Section -->
+                        <div class="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-4 shadow-sm">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-emerald-200 dark:border-emerald-900/50">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                <h3 class="font-bold text-emerald-950 dark:text-emerald-300 text-sm">🟢 Compatible Goods (Fits Selected Class)</h3>
+                            </div>
+                            <div id="compatibleCards" class="space-y-2 text-xs text-emerald-900 dark:text-emerald-200"></div>
+                        </div>
+
+                        <!-- 🔴 Misclassified Items Section -->
+                        <div class="bg-red-50/60 dark:bg-rose-950/20 border border-red-200 dark:border-rose-900/50 rounded-xl p-4 shadow-sm">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-red-200 dark:border-rose-900/50">
+                                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                                <h3 class="font-bold text-red-950 dark:text-rose-300 text-sm">🔴 Misclassified Goods (Belongs to Other Classes)</h3>
+                            </div>
+                            <div id="misclassifiedCards" class="space-y-2 text-xs text-red-900 dark:text-rose-200"></div>
+                        </div>
+
+                        <!-- 🟡 Vague / Indefinite Terms Section -->
+                        <div class="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 shadow-sm">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200 dark:border-amber-900/50">
+                                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                                <h3 class="font-bold text-amber-950 dark:text-amber-300 text-sm">🟡 Vague / Indefinite / Overly Broad Terms</h3>
+                            </div>
+                            <div id="vagueCards" class="space-y-2 text-xs text-amber-900 dark:text-amber-200"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Official Examiner Case File Note Box -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 space-y-3 transition-colors">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+                                <i data-lucide="clipboard-list" class="w-4 h-4 text-nipo-blue dark:text-nipo-gold"></i>
+                                Official Examiner Note (For NIPO Case File / Office Action)
+                            </h3>
+                            <button onclick="copyCaseNote()" class="text-xs bg-nipo-navy hover:bg-nipo-deep text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                Copy Case Note
+                            </button>
+                        </div>
+
+                        <div id="caseNoteText" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Copyright Footer -->
+        <footer class="bg-nipo-deep text-slate-400 border-t border-slate-800 py-4 mt-auto text-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2 text-center sm:text-left">
+                <div>
+                    <p class="font-bold text-slate-200">Designed & Developed by Sandaruwan</p>
+                    <p class="text-slate-400 text-[11px]">Copyright © 2026 Sandaruwan - NIPO Sri Lanka Trademark Examination Tool</p>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                    <span class="inline-block w-2 h-2 rounded-full bg-nipo-gold"></span>
+                    <span>National Intellectual Property Office — Sri Lanka (Non-Official)</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // ---------------------------------------------------------------------
+        // 1. NICE CLASSIFICATION DATABASE (13th Edition - Version 2026)
+        // ---------------------------------------------------------------------
+        const NICE_CLASSES = {
+            1: { type: "Goods", title: "Class 1: Chemicals for Industry, Science and Agriculture", scope: "Chemicals used in industry, science, photography, agriculture; unprocessed plastics; adhesives for industry." },
+            2: { type: "Goods", title: "Class 2: Paints, Varnishes and Anti-Corrosion", scope: "Paints, varnishes, lacquers; preservatives against rust; colorants, dyes; raw natural resins." },
+            3: { type: "Goods", title: "Class 3: Cosmetics, Cleaning and Toiletries", scope: "Non-medicated cosmetics, perfumes, essential oils, soaps, dentifrices, cleaning preparations." },
+            4: { type: "Goods", title: "Class 4: Industrial Oils, Fuels and Lubricants", scope: "Industrial oils, greases, lubricants, fuels, candles, illuminants." },
+            5: { type: "Goods", title: "Class 5: Pharmaceuticals and Medical Preparations", scope: "Pharmaceuticals, medical and veterinary preparations; sanitary preparations; plasters, materials for dressings." },
+            6: { type: "Goods", title: "Class 6: Common Metals and Hardware", scope: "Common metals and alloys; metal building materials; small items of metal hardware; metal containers." },
+            7: { type: "Goods", title: "Class 7: Machinery, Motors and Power Tools", scope: "Machines, machine tools, motors (except for land vehicles), automatic vending machines." },
+            8: { type: "Goods", title: "Class 8: Hand Tools and Cutlery", scope: "Hand-operated hand tools, cutlery, razors, side arms." },
+            9: { type: "Goods", title: "Class 9: Electronics, Software and Information Technology", scope: "Computers, software, mobile apps, recording media, scientific, optical and weighing apparatus." },
+            10: { type: "Goods", title: "Class 10: Medical Apparatus, Assistive & Optical Goods", scope: "Surgical, medical, dental apparatus; artificial limbs; orthopedic articles; eyeglasses, spectacles, sunglasses; baby bottles." },
+            11: { type: "Goods", title: "Class 11: Environmental Control (Lighting, Heating, Cooling)", scope: "Apparatus for lighting, heating, cooling, steam generating, cooking, drying, ventilating, water supply." },
+            12: { type: "Goods", title: "Class 12: Vehicles and Mobility Conveyances", scope: "Vehicles; apparatus for locomotion by land, air or water; wheelchairs; mobility scooters; emergency vehicles." },
+            13: { type: "Goods", title: "Class 13: Firearms and Pyrotechnics", scope: "Firearms, ammunition, explosives, fireworks." },
+            14: { type: "Goods", title: "Class 14: Precious Metals, Jewelry and Clocks", scope: "Precious metals, jewellery, precious stones, horological and chronometric instruments, watches." },
+            15: { type: "Goods", title: "Class 15: Musical Instruments", scope: "Musical instruments, music stands, conductors' batons." },
+            16: { type: "Goods", title: "Class 16: Paper, Printed Matter and Office Requisites", scope: "Paper, cardboard, printed matter, books, stationery, office requisites, plastic wrapping." },
+            17: { type: "Goods", title: "Class 17: Rubber, Plastics and Insulation Materials", scope: "Unprocessed and semi-processed rubber, plastics in extruded form, packing, stopping and insulating materials." },
+            18: { type: "Goods", title: "Class 18: Leather Goods, Bags and Saddlery", scope: "Leather and imitations; luggage, carrying bags, umbrellas, saddlery, clothing for animals." },
+            19: { type: "Goods", title: "Class 19: Non-Metallic Building Materials", scope: "Non-metallic building materials, rigid pipes, asphalt, pitch, bitumen, non-metallic transportable buildings." },
+            20: { type: "Goods", title: "Class 20: Furniture, Mirrors and Non-Metallic Containers", scope: "Furniture, mirrors, picture frames, non-metallic storage containers." },
+            21: { type: "Goods", title: "Class 21: Household Utensils, Glassware and Cookware", scope: "Household or kitchen utensils, cookware, tableware, combs, sponges, glassware, porcelain." },
+            22: { type: "Goods", title: "Class 22: Ropes, Tents and Fibres", scope: "Ropes, string, nets, tents, awnings, tarpaulins, sacks, padding materials, raw fibrous textiles." },
+            23: { type: "Goods", title: "Class 23: Yarns and Threads for Textile Use", scope: "Yarns and threads for textile use." },
+            24: { type: "Goods", title: "Class 24: Textiles, Fabrics and Bed Coverings", scope: "Textiles, household linen, curtains, bed covers, table covers." },
+            25: { type: "Goods", title: "Class 25: Clothing, Footwear and Headwear", scope: "Clothing, footwear, headwear, shirts, dresses, shoes, boots, hats." },
+            26: { type: "Goods", title: "Class 26: Haberdashery, Lace and Embellishments", scope: "Lace, braid, ribbons, buttons, hooks and eyes, pins, artificial flowers, hair decorations." },
+            27: { type: "Goods", title: "Class 27: Floor Coverings and Wall Hangings", scope: "Carpets, rugs, mats, linoleum, floor coverings, non-textile wall hangings." },
+            28: { type: "Goods", title: "Class 28: Games, Toys and Sports Equipment", scope: "Games, toys, video game apparatus, sporting articles, Christmas tree decorations." },
+            29: { type: "Goods", title: "Class 29: Meat, Fish, Processed Fruits and Vegetables", scope: "Meat, fish, preserved/cooked fruits and vegetables, jellies, jams, milk products, edible oils." },
+            30: { type: "Goods", title: "Class 30: Coffee, Tea, Rice, Flour and Confectionery", scope: "Coffee, tea, cocoa, rice, flour, bread, pastries, confectionery, spices, condiments." },
+            31: { type: "Goods", title: "Class 31: Raw Agricultural Products, Grains and Animals", scope: "Raw agricultural products, seeds, fresh fruits and vegetables, live animals, animal foodstuffs." },
+            32: { type: "Goods", title: "Class 32: Non-Alcoholic Beverages, Beer and Water", scope: "Beers, non-alcoholic beverages, mineral waters, fruit juices, syrups." },
+            33: { type: "Goods", title: "Class 33: Alcoholic Beverages (except Beer)", scope: "Alcoholic beverages (except beers), wines, spirits, liqueurs." },
+            34: { type: "Goods", title: "Class 34: Tobacco, Matches and Smoker Requisites", scope: "Tobacco, tobacco substitutes, cigarettes, e-cigarettes, smokers' articles, matches." },
+            35: { type: "Services", title: "Class 35: Advertising, Business Management and Retail Services", scope: "Advertising, business administration, office functions, retail/wholesale services." },
+            36: { type: "Services", title: "Class 36: Financial, Banking and Real Estate Services", scope: "Financial, banking, insurance, and real estate services." },
+            37: { type: "Services", title: "Class 37: Construction, Repair and Installation Services", scope: "Construction services, installation and repair services." },
+            38: { type: "Services", title: "Class 38: Telecommunications Services", scope: "Telecommunications, broadcasting, internet access provision." },
+            39: { type: "Services", title: "Class 39: Transport, Packaging and Travel Arrangement", scope: "Transport, packaging and storage of goods, travel arrangement." },
+            40: { type: "Services", title: "Class 40: Treatment of Materials and Recycling", scope: "Treatment of materials, recycling, air/water treatment, printing." },
+            41: { type: "Services", title: "Class 41: Education, Entertainment and Training", scope: "Education, training, entertainment, sporting and cultural activities." },
+            42: { type: "Services", title: "Class 42: IT Services, Software Development and Scientific Research", scope: "Scientific and technological services, software design/development, scientific research." },
+            43: { type: "Services", title: "Class 43: Food and Drink Provision (Hotels and Restaurants)", scope: "Services for providing food and drink, temporary accommodation, restaurants, hotels." },
+            44: { type: "Services", title: "Class 44: Medical, Beauty and Agriculture Services", scope: "Medical services, veterinary services, beauty care, agriculture, forestry." },
+            45: { type: "Services", title: "Class 45: Legal, Security and Personal Services", scope: "Legal services, security services, personal and social services." }
+        };
+
+        const PASSCODE = "NIPO2026";
+
+        // ---------------------------------------------------------------------
+        // 2. AUTHENTICATION & LOGIN LOGIC
+        // ---------------------------------------------------------------------
+        function handleLogin(e) {
+            e.preventDefault();
+            const val = document.getElementById('passcodeInput').value.trim();
+            if (val === PASSCODE) {
+                sessionStorage.setItem('nipo_auth_session', 'true');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainAppContainer').classList.remove('hidden');
+                document.getElementById('mainAppContainer').classList.add('flex');
+                initApp();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function toggleLoginPasscode() {
+            const input = document.getElementById('passcodeInput');
+            const icon = document.getElementById('loginEyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('nipo_auth_session');
+            location.reload();
+        }
+
+        // ---------------------------------------------------------------------
+        // 3. DARK MODE TOGGLE LOGIC
+        // ---------------------------------------------------------------------
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('darkModeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('nipo_theme', 'light');
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('nipo_theme', 'dark');
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+        }
+
+        function checkSavedTheme() {
+            const savedTheme = localStorage.getItem('nipo_theme');
+            const icon = document.getElementById('darkModeIcon');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                if(icon) icon.setAttribute('data-lucide', 'sun');
+            } else {
+                document.documentElement.classList.remove('dark');
+                if(icon) icon.setAttribute('data-lucide', 'moon');
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 4. APP INITIALIZATION & ENGINE
+        // ---------------------------------------------------------------------
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSavedTheme();
+            lucide.createIcons();
+
+            if (sessionStorage.getItem('nipo_auth_session') === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainAppContainer').classList.remove('hidden');
+                document.getElementById('mainAppContainer').classList.add('flex');
+                initApp();
+            }
+        });
+
+        function initApp() {
+            populateNiceClassSelect();
+            checkSavedApiKey();
+            updateClassDetails();
+            updateCharCount();
+            lucide.createIcons();
+        }
+
+        function populateNiceClassSelect() {
+            const select = document.getElementById('niceClassSelect');
+            select.innerHTML = '';
+            for (let i = 1; i <= 45; i++) {
+                const item = NICE_CLASSES[i];
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Class ${i}: ${item.title.split(':')[1].trim()} (${item.type})`;
+                select.appendChild(option);
+            }
+            select.value = 10;
+        }
+
+        function updateClassDetails() {
+            const classNum = document.getElementById('niceClassSelect').value;
+            const classData = NICE_CLASSES[classNum];
+            document.getElementById('classTitleDisplay').textContent = classData.title;
+            document.getElementById('classScopeDisplay').textContent = classData.scope;
+            
+            const badge = document.getElementById('classCategoryBadge');
+            badge.textContent = `${classData.type} Class`;
+            badge.className = classData.type === 'Goods' 
+                ? "text-xs font-semibold px-2.5 py-0.5 bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 rounded-full border border-blue-200 dark:border-slate-700"
+                : "text-xs font-semibold px-2.5 py-0.5 bg-emerald-50 dark:bg-slate-800 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-slate-700";
+        }
+
+        function updateCharCount() {
+            const val = document.getElementById('goodsInput').value;
+            document.getElementById('charCount').textContent = `${val.length} chars`;
+        }
+
+        function loadSampleClass10() {
+            document.getElementById('niceClassSelect').value = 10;
+            updateClassDetails();
+            document.getElementById('goodsInput').value = `1. Surgical scalpels and lancets
+2. Digital blood pressure monitors
+3. Orthopedic joint braces
+4. Baby feeding bottles and pacifiers
+5. Medical adhesive plasters and wound dressing bandages
+6. Electric heating pads for medical purposes
+7. Electric heating pads for general household use
+8. Wheelchairs and electric mobility scooters
+9. Diagnostic medical software pre-installed on standalone hardware
+10. Compression stockings for varicose veins
+11. Athletic supportive wrist guards for sports
+12. Smart wearable pulse rate tracking bands`;
+            updateCharCount();
+        }
+
+        function resetForm() {
+            document.getElementById('goodsInput').value = '';
+            document.getElementById('placeholderState').classList.remove('hidden');
+            document.getElementById('reportContainer').classList.add('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+            updateCharCount();
+        }
+
+        function checkSavedApiKey() {
+            const savedKey = localStorage.getItem('nipo_gemini_api_key') || '';
+            document.getElementById('apiKeyInput').value = savedKey;
+            updateKeyStatusBadge(savedKey);
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                localStorage.removeItem('nipo_gemini_api_key');
+                updateKeyStatusBadge('');
+                alert('API Key cleared.');
+            } else {
+                localStorage.setItem('nipo_gemini_api_key', key);
+                updateKeyStatusBadge(key);
+                alert('Gemini API Key saved successfully!');
+            }
+        }
+
+        function toggleKeyVisibility() {
+            const input = document.getElementById('apiKeyInput');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function updateKeyStatusBadge(key) {
+            const badge = document.getElementById('keyStatusBadge');
+            if (key) {
+                badge.className = "text-[11px] font-medium px-2.5 py-1 rounded-md border bg-emerald-950 text-emerald-300 border-emerald-700 flex items-center gap-1.5";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Key Active`;
+            } else {
+                badge.className = "text-[11px] font-medium px-2.5 py-1 rounded-md border bg-amber-950 text-amber-300 border-amber-700 flex items-center gap-1.5";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Key Missing`;
+            }
+        }
+
+        async function analyzeGoodsList() {
+            const apiKey = localStorage.getItem('nipo_gemini_api_key') || document.getElementById('apiKeyInput').value.trim();
+            const goodsText = document.getElementById('goodsInput').value.trim();
+            const classNum = document.getElementById('niceClassSelect').value;
+            const classData = NICE_CLASSES[classNum];
+
+            if (!apiKey) {
+                alert('Please enter and save your Gemini API Key in the top navigation bar.');
+                document.getElementById('apiKeyInput').focus();
+                return;
+            }
+
+            if (!goodsText) {
+                alert('Please enter or paste a list of goods/services.');
+                document.getElementById('goodsInput').focus();
+                return;
+            }
+
+            document.getElementById('placeholderState').classList.add('hidden');
+            document.getElementById('reportContainer').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            const systemPrompt = `You are a Senior Trademark Examiner at NIPO Sri Lanka examining goods against Nice Classification 13th Edition (2026).
+Selected Class: Class ${classNum} (${classData.title})
+Class Scope: ${classData.scope}
+
+Evaluate the user's specification list and return ONLY a single, valid JSON object with EXACTLY this structure (no markdown fences, no plain text outside JSON):
+
+{
+  "verdictStatus": "COMPATIBLE" or "MISCLASSIFIED_ITEMS" or "VAGUE_TERMS",
+  "summarySentence": "Short 1-sentence examiner summary.",
+  "compatibleItems": [
+    {"item": "Item Name", "reason": "Short 1-line reason why it fits Class ${classNum}"}
+  ],
+  "misclassifiedItems": [
+    {"item": "Item Name", "correctClass": "Class X", "reason": "Short 1-line reason why it belongs to Class X instead"}
+  ],
+  "vagueItems": [
+    {"item": "Item Name", "reason": "Short reason why vague/broad", "suggestedAmendment": "Proposed replacement wording"}
+  ],
+  "caseNote": "Concise 2-sentence formal examination file note for Section 36 of Act No. 36 of 2003."
+}`;
+
+            const userPrompt = `Goods Specification to examine:\n"""\n${goodsText}\n"""`;
+
+            try {
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            { role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }
+                        ],
+                        generationConfig: {
+                            responseMimeType: "application/json"
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                const rawText = data.candidates[0].content.parts[0].text;
+                const result = JSON.parse(rawText);
+                renderDashboard(result);
+
+            } catch (err) {
+                alert('Examination failed: ' + err.message);
+                document.getElementById('placeholderState').classList.remove('hidden');
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('reportContainer').classList.remove('hidden');
+
+            // Verdict Banner Styling
+            const banner = document.getElementById('verdictBanner');
+            const badge = document.getElementById('verdictBadge');
+            const title = document.getElementById('verdictTitle');
+            const summary = document.getElementById('verdictSummary');
+
+            title.textContent = data.verdictStatus.replace(/_/g, ' ');
+            summary.textContent = data.summarySentence;
+
+            if (data.verdictStatus === "COMPATIBLE") {
+                banner.className = "p-4 sm:p-5 rounded-xl border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200";
+                badge.className = "px-3.5 py-1.5 rounded-full font-bold text-xs uppercase tracking-wide border shadow-sm bg-emerald-500 text-white border-emerald-600";
+                badge.textContent = "Fully Compatible";
+            } else {
+                banner.className = "p-4 sm:p-5 rounded-xl border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-950 dark:text-amber-200";
+                badge.className = "px-3.5 py-1.5 rounded-full font-bold text-xs uppercase tracking-wide border shadow-sm bg-amber-500 text-slate-950 border-amber-600";
+                badge.textContent = "Action Required";
+            }
+
+            // 1. Compatible Cards
+            const compContainer = document.getElementById('compatibleCards');
+            compContainer.innerHTML = data.compatibleItems && data.compatibleItems.length > 0 
+                ? data.compatibleItems.map(i => `<div class="p-2 bg-white/60 dark:bg-slate-900/40 rounded border border-emerald-200 dark:border-emerald-900 flex flex-col"><strong class="font-semibold">${i.item}</strong><span class="text-[11px] opacity-80">${i.reason}</span></div>`).join('')
+                : '<p class="text-xs italic opacity-60">No compatible items found.</p>';
+
+            // 2. Misclassified Cards
+            const misContainer = document.getElementById('misclassifiedCards');
+            misContainer.innerHTML = data.misclassifiedItems && data.misclassifiedItems.length > 0 
+                ? data.misclassifiedItems.map(i => `<div class="p-2 bg-white/60 dark:bg-slate-900/40 rounded border border-red-200 dark:border-rose-900 flex flex-col"><div class="flex justify-between items-center"><strong class="font-semibold">${i.item}</strong><span class="px-2 py-0.5 text-[10px] bg-red-100 dark:bg-rose-900 text-red-800 dark:text-rose-200 rounded font-bold">Reclassify to ${i.correctClass}</span></div><span class="text-[11px] opacity-80 mt-0.5">${i.reason}</span></div>`).join('')
+                : '<p class="text-xs italic opacity-60">No misclassified items.</p>';
+
+            // 3. Vague Cards
+            const vagueContainer = document.getElementById('vagueCards');
+            vagueContainer.innerHTML = data.vagueItems && data.vagueItems.length > 0 
+                ? data.vagueItems.map(i => `<div class="p-2 bg-white/60 dark:bg-slate-900/40 rounded border border-amber-200 dark:border-amber-900 flex flex-col"><strong class="font-semibold">${i.item}</strong><span class="text-[11px] opacity-80">${i.reason}</span><span class="text-[11px] text-amber-800 dark:text-amber-300 mt-1 font-medium">Suggestion: "${i.suggestedAmendment}"</span></div>`).join('')
+                : '<p class="text-xs italic opacity-60">No vague terms.</p>';
+
+            // Case Note
+            document.getElementById('caseNoteText').textContent = data.caseNote;
+            lucide.createIcons();
+        }
+
+        function copyCaseNote() {
+            const text = document.getElementById('caseNoteText').textContent;
+            navigator.clipboard.writeText(text);
+            alert('Official examiner case note copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
