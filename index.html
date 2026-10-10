@@ -581,25 +581,28 @@
             document.getElementById('reportContainer').classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
 
-            const systemPrompt = `You are a Senior Trademark Examiner at NIPO Sri Lanka examining goods against Nice Classification 13th Edition (2026).
+const systemPrompt = `You are a Senior Trademark Examiner at NIPO Sri Lanka examining goods and services against Nice Classification 13th Edition (2026).
 Selected Class: Class ${classNum} (${classData.title})
 Class Scope: ${classData.scope}
+
+CRITICAL INSTRUCTIONS FOR PARSING:
+The user has provided a specification list where items may be separated by commas, semicolons, or line numbers. You MUST parse and evaluate EACH distinct comma-separated or numbered item individually. Do not group unrelated items together.
 
 Evaluate the user's specification list and return ONLY a single, valid JSON object with EXACTLY this structure (no markdown fences, no plain text outside JSON):
 
 {
   "verdictStatus": "COMPATIBLE" or "MISCLASSIFIED_ITEMS" or "VAGUE_TERMS",
-  "summarySentence": "Short 1-sentence examiner summary.",
+  "summarySentence": "Short 1-sentence examiner summary regarding the comma-separated submission.",
   "compatibleItems": [
-    {"item": "Item Name", "reason": "Short 1-line reason why it fits Class ${classNum}"}
+    {"item": "Exact item name from list", "reason": "Short 1-line reason why it fits Class ${classNum}"}
   ],
   "misclassifiedItems": [
-    {"item": "Item Name", "correctClass": "Class X", "reason": "Short 1-line reason why it belongs to Class X instead"}
+    {"item": "Exact item name from list", "correctClass": "Class X", "reason": "Short 1-line reason why it belongs to Class X instead"}
   ],
   "vagueItems": [
-    {"item": "Item Name", "reason": "Short reason why vague/broad", "suggestedAmendment": "Proposed replacement wording"}
+    {"item": "Exact item name from list", "reason": "Short reason why vague/broad", "suggestedAmendment": "Proposed replacement wording"}
   ],
-  "caseNote": "Concise 2-sentence formal examination file note for Section 36 of Act No. 36 of 2003."
+  "caseNote": "Concise 2-sentence formal examination file note for Section 36 of Act No. 36 of 2003 dealing with the multi-clause specification."
 }`;
 
             const userPrompt = `Goods Specification to examine:\n"""\n${goodsText}\n"""`;
